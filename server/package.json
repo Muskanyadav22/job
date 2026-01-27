@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.22.1",
+    "express-async-handler": "^1.2.0",
+    "express-openid-connect": "^2.19.4",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.8.1",
+    "nodemon": "^3.1.7"
+  }
+}
