@@ -1,6 +1,6 @@
 # JobFinder
 
-JobFinder is a full-stack job search and posting platform built with Next.js (frontend) and Node.js/Express (backend). It allows users to find jobs, post new job listings, and manage their applications.
+JobFinder is a full-stack job search and posting platform built with React.js (frontend) and Node.js/Express (backend). It allows users to find jobs, post new job listings, and manage their applications.
 
 ## Features
 - Job search and filtering
@@ -10,13 +10,13 @@ JobFinder is a full-stack job search and posting platform built with Next.js (fr
 - RESTful API backend
 
 ## Tech Stack
-- **Frontend:** Next.js, React, Tailwind CSS
+- **Frontend:**  React, Tailwind CSS
 - **Backend:** Node.js, Express.js, MongoDB
 - **Other:** Context API, custom hooks, reusable UI components
 
 ## Project Structure
 ```
-client/         # Frontend (Next.js)
+client/         # Frontend 
   Components/   # Reusable React components
   app/          # Next.js app routes
   context/      # React Contexts
