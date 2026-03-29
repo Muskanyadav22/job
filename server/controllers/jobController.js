@@ -323,11 +323,7 @@ export const getApplicants = asyncHandler(async (req, res) => {
       return res.status(401).json({ message: "Not Authorized" });
     }
 
-    // Populate applicants with userId reference
-    const job = await Job.findById(id).populate({
-      path: "createdBy",
-      select: "name email"
-    });
+    const job = await Job.findById(id).populate("createdBy", "name email");
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
@@ -338,51 +334,52 @@ export const getApplicants = asyncHandler(async (req, res) => {
       return res.status(403).json({ message: "Not authorized to view applicants" });
     }
 
-    console.log("Job applicants raw data:", job.applicants);
-
     // Get all applicants with their details
     const applicants = [];
     
     for (const applicant of job.applicants) {
       // Handle both old format (direct ID) and new format (object with userId)
-      let userId = null;
-      let status = applicant.status || "applied";
-      let appliedAt = applicant.appliedAt || new Date();
+      const userId = applicant.userId || applicant;
+      const status = applicant.status || "applied";
+      const appliedAt = applicant.appliedAt || new Date();
 
-      if (applicant.userId) {
-        userId = applicant.userId;
-      } else if (applicant._id) {
-        userId = applicant._id;
-      } else {
-        userId = applicant;
+      try {
+        const applicantUser = await User.findById(userId).select(
+          "name email profession profilePicture"
+        );
+        
+        // Always add applicant, even if user data is missing
+        applicants.push({
+          _id: userId.toString(),
+          name: applicantUser?.name || "Unknown",
+          email: applicantUser?.email || "N/A",
+          profession: applicantUser?.profession || "",
+          profilePicture: applicantUser?.profilePicture || "/user.png",
+          status: status,
+          appliedAt: appliedAt,
+          createdAt: appliedAt,
+        });
+      } catch (err) {
+        console.log("Error fetching applicant user:", err);
+        // Still add the applicant even if there's an error
+        applicants.push({
+          _id: userId.toString(),
+          name: "Unknown",
+          email: "N/A",
+          profession: "",
+          profilePicture: "/user.png",
+          status: status,
+          appliedAt: appliedAt,
+          createdAt: appliedAt,
+        });
       }
-
-      console.log("Looking for user:", userId);
-
-      const applicantUser = await User.findById(userId);
-      
-      console.log("Found user:", applicantUser?.name, "for ID:", userId);
-
-      // Always add applicant, show name from database
-      applicants.push({
-        _id: userId.toString(),
-        name: applicantUser?.name || "Unknown User",
-        email: applicantUser?.email || "N/A",
-        profession: applicantUser?.profession || "",
-        profilePicture: applicantUser?.profilePicture || "/user.png",
-        status: status,
-        appliedAt: appliedAt,
-        createdAt: appliedAt,
-      });
     }
 
-    console.log("Returning applicants:", applicants);
     return res.status(200).json(applicants);
   } catch (error) {
     console.log("Error in getApplicants: ", error);
     return res.status(500).json({
       message: "Server Error",
-      error: error.message,
     });
   }
 });
