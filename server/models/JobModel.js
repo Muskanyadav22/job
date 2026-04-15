@@ -61,7 +61,7 @@ const JobSchema = new mongoose.Schema(
     applicants: [
       {
         userId: {
-          type: mongoose.Schema.Types.ObjectId,
+          type:  mongoose.Schema.Types.ObjectId,// 
           ref: "User",
         },
         status: {

@@ -12,6 +12,7 @@ function Filters() {
     maxSalary,
     setMinSalary,
     setMaxSalary,
+    actualMaxSalary,
   } = useJobsContext();
 
   return (
@@ -24,7 +25,7 @@ function Filters() {
               <Checkbox
                 id={type}
                 checked={filters[type] || false}
-                onChange={() => handleFilterChange(type)}
+                onCheckedChange={() => handleFilterChange(type)}
               />
               <Label htmlFor={type} className="ml-2 cursor-pointer">
                 {type === "fullTime"
@@ -48,7 +49,7 @@ function Filters() {
               <Checkbox
                 id={skill}
                 checked={filters[skill] || false}
-                onChange={() => handleFilterChange(skill)}
+                onCheckedChange={() => handleFilterChange(skill)}
               />
               <Label htmlFor={skill} className="ml-2 cursor-pointer">
                 {skill === "fullStack"
@@ -67,21 +68,30 @@ function Filters() {
       <div>
         <h3 className="font-bold text-lg mb-4">Salary Range</h3>
         <p className="text-sm mb-2">
-          £{minSalary} - £{maxSalary}
+          ₹{minSalary.toLocaleString()} - ₹{maxSalary.toLocaleString()}
         </p>
-        <Slider
-          value={[minSalary]}
-          onValueChange={(val) => setMinSalary(val[0])}
-          max={300000}
-          step={1000}
-          className="mb-4"
-        />
-        <Slider
-          value={[maxSalary]}
-          onValueChange={(val) => setMaxSalary(val[0])}
-          max={300000}
-          step={1000}
-        />
+        <div className="mb-4">
+          <label className="text-xs text-gray-600">Min Salary</label>
+          <Slider
+            value={[minSalary]}
+            onValueChange={(val) => setMinSalary(Math.min(val[0], actualMaxSalary))}
+            max={actualMaxSalary}
+            min={0}
+            step={1000}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-gray-600">Max Salary</label>
+          <Slider
+            value={[maxSalary]}
+            onValueChange={(val) => setMaxSalary(Math.max(val[0], minSalary))}
+            max={actualMaxSalary * 1.2}
+            min={minSalary}
+            step={1000}
+            className="mt-2"
+          />
+        </div>
       </div>
     </aside>
   );

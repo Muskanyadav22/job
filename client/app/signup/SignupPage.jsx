@@ -19,6 +19,7 @@ function SignupPage() {
     email: "",
     password: "",
     profession: "",
+    role: "jobseeker",
   });
 
   const handleChange = (e) => {
@@ -44,7 +45,7 @@ function SignupPage() {
         email: formData.email,
         password: formData.password,
         profession: formData.profession || "Not specified",
-        role: "jobseeker",
+        role: formData.role,
       });
 
       if (res.data.success) {
@@ -130,6 +131,21 @@ function SignupPage() {
               onChange={handleChange}
               disabled={isLoading}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="role">Account Type</Label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              disabled={isLoading}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7263f3]"
+            >
+              <option value="jobseeker">Job Seeker</option>
+              <option value="recruiter">Recruiter</option>
+            </select>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

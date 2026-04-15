@@ -23,7 +23,8 @@ function JobDetailsPage() {
 
   useEffect(() => {
     if (job && userProfile?._id) {
-      setIsApplied(job.applicants.includes(userProfile._id));
+      // Check if user already applied - applicants now has userId property
+      setIsApplied(job.applicants.some(app => app.userId?.toString() === userProfile._id || app.userId === userProfile._id));
       setIsLiked(job.likes.includes(userProfile._id));
     }
   }, [job, userProfile?._id]);
@@ -56,6 +57,8 @@ function JobDetailsPage() {
     profilePicture: "/user.png",
   };
 
+  const isOwnJob = userProfile?._id === createdBy?._id;
+
   const handleLike = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -68,6 +71,10 @@ function JobDetailsPage() {
   const handleApply = () => {
     if (!isAuthenticated) {
       navigate("/login");
+      return;
+    }
+    if (isOwnJob) {
+      toast.error("You cannot apply to your own job");
       return;
     }
     if (isApplied) {
@@ -114,7 +121,7 @@ function JobDetailsPage() {
             <div className="flex-1 py-2 px-4 flex flex-col items-center justify-center gap-1 bg-green-500/20 rounded-xl">
               <span className="text-sm">Salary</span>
               <span>
-                <span className="font-bold">{formatMoney(salary, "GBP")}</span>
+                <span className="font-bold">{formatMoney(salary)}</span>
                 <span className="font-medium text-gray-500 text-lg">
                   /{salaryType ? `${salaryType.substring(0, 2)}` : ""}
                 </span>
@@ -144,14 +151,24 @@ function JobDetailsPage() {
           />
 
           <div className="mt-6 flex gap-4">
-            <Button
-              className={`flex-1 text-white py-4 rounded-full ${
-                isApplied ? "bg-green-500" : "bg-[#7263f3]"
-              }`}
-              onClick={handleApply}
-            >
-              {isApplied ? "Applied" : "Apply Now"}
-            </Button>
+            {isOwnJob ? (
+              <Button
+                className="flex-1 text-white py-4 rounded-full bg-[#7263f3]"
+                onClick={() => navigate(`/job/applicants/${id}`)}
+              >
+                View Applicants ({applicants?.length || 0})
+              </Button>
+            ) : (
+              <Button
+                className={`flex-1 text-white py-4 rounded-full ${
+                  isApplied ? "bg-green-500" : "bg-[#7263f3]"
+                }`}
+                onClick={handleApply}
+                disabled={isApplied}
+              >
+                {isApplied ? "Applied" : "Apply Now"}
+              </Button>
+            )}
           </div>
 
           <div className="mt-6 p-6 flex flex-col gap-2 bg-white rounded-md border">

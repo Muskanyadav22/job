@@ -34,8 +34,9 @@ export const JobsContextProvider = ({ children }) => {
     uiux: false,
   });
 
-  const [minSalary, setMinSalary] = useState(30000);
-  const [maxSalary, setMaxSalary] = useState(120000);
+  const [minSalary, setMinSalary] = useState(0);
+  const [maxSalary, setMaxSalary] = useState(0); // Will be set dynamically from actual jobs
+  const [actualMaxSalary, setActualMaxSalary] = useState(0); // Store actual max salary from all jobs
 
   const getJobs = async () => {
     setLoading(true);
@@ -43,6 +44,18 @@ export const JobsContextProvider = ({ children }) => {
       const res = await axios.get("/api/v1/jobs");
       console.log("Jobs fetched:", res.data);
       setAllJobs(res.data); // Store all unfiltered jobs
+      
+      // Set max salary dynamically based on actual job data
+      if (res.data.length > 0) {
+        const maxJobSalary = Math.max(...res.data.map(job => job.salary || 0));
+        const bufferMax = maxJobSalary + 10000; // Add buffer
+        setActualMaxSalary(bufferMax); // Store actual max
+        setMaxSalary(bufferMax); // Initialize filtered max
+      } else {
+        setActualMaxSalary(500000); // Default if no jobs
+        setMaxSalary(500000);
+      }
+      
       setJobs(res.data);
     } catch (error) {
       console.error("Error getting jobs", error?.response?.data || error?.message);
@@ -98,9 +111,7 @@ export const JobsContextProvider = ({ children }) => {
 
   // Apply filters - refactored to always use fresh state
   const applyFilters = () => {
-    if (allJobs.length === 0) return;
-
-    let filteredJobs = [...allJobs];
+    let filteredJobs = allJobs.length > 0 ? [...allJobs] : [];
 
     // Filter by salary range
     filteredJobs = filteredJobs.filter(
@@ -114,10 +125,16 @@ export const JobsContextProvider = ({ children }) => {
     if (filters.contract) activeJobTypes.push("Contract");
     if (filters.internship) activeJobTypes.push("Internship");
 
+    // Only filter if at least one job type is selected
     if (activeJobTypes.length > 0) {
-      filteredJobs = filteredJobs.filter((job) =>
-        job.jobType?.some((type) => activeJobTypes.includes(type))
-      );
+      filteredJobs = filteredJobs.filter((job) => {
+        // Check if job.jobType is an array and matches any selected type
+        if (Array.isArray(job.jobType)) {
+          return job.jobType.some((type) => activeJobTypes.includes(type));
+        }
+        // If jobType is a string, check direct match
+        return activeJobTypes.includes(job.jobType);
+      });
     }
 
     // Filter by tags
@@ -172,15 +189,20 @@ export const JobsContextProvider = ({ children }) => {
 
   // like a job
   const likeJob = async (jobId) => {
-    console.log("Job liked", jobId);
+    console.log("Job like toggle", jobId);
     try {
+      const job = jobs.find(j => j._id === jobId);
+      const isCurrentlyLiked = job?.likes.includes(userProfile._id);
+      
       const res = await axios.put(`/api/v1/jobs/like/${jobId}`);
 
-      console.log("Job liked successfully", res);
-      toast.success("Job liked successfully");
+      console.log("Job like toggled successfully", res);
+      const message = isCurrentlyLiked ? "Job removed from saved" : "Job saved successfully";
+      toast.success(message);
       getJobs();
     } catch (error) {
       console.log("Error liking job", error);
+      toast.error("Failed to update job");
     }
   };
 
@@ -188,7 +210,8 @@ export const JobsContextProvider = ({ children }) => {
   const applyToJob = async (jobId) => {
     const job = jobs.find((job) => job._id === jobId);
 
-    if (job && job.applicants.includes(userProfile._id)) {
+    // Check if user already applied - applicants now has userId property
+    if (job && job.applicants.some(app => app.userId?.toString() === userProfile._id || app.userId === userProfile._id)) {
       toast.error("You have already applied to this job");
       return;
     }
@@ -217,6 +240,45 @@ export const JobsContextProvider = ({ children }) => {
     }
   };
 
+  // get applicants for a job
+  const getApplicants = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`/api/v1/jobs/${jobId}/applicants`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log("Error getting applicants", error);
+      toast.error(error.response?.data?.message || "Failed to get applicants");
+      throw error;
+    }
+  };
+
+  // update applicant status
+  const updateApplicantStatus = async (jobId, userId, status) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        `/api/v1/jobs/${jobId}/applicants/${userId}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(`Applicant status updated to ${status}`);
+      return res.data;
+    } catch (error) {
+      console.log("Error updating applicant status", error);
+      toast.error(error.response?.data?.message || "Failed to update status");
+      throw error;
+    }
+  };
+
   //
   const handleSearchChange = (searchName, value) => {
     setSearchQuery((prev) => ({ ...prev, [searchName]: value }));
@@ -241,6 +303,23 @@ export const JobsContextProvider = ({ children }) => {
     }
   }, [userProfile._id]);
 
+  // get applied jobs
+  const getAppliedJobs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/v1/jobs/applied", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log("Error getting applied jobs", error);
+      toast.error(error.response?.data?.message || "Failed to get applied jobs");
+      throw error;
+    }
+  };
+
   return (
     <JobsContext.Provider
       value={{
@@ -253,6 +332,9 @@ export const JobsContextProvider = ({ children }) => {
         likeJob,
         applyToJob,
         deleteJob,
+        getApplicants,
+        updateApplicantStatus,
+        getAppliedJobs,
         handleSearchChange,
         searchQuery,
         setSearchQuery,
@@ -262,6 +344,7 @@ export const JobsContextProvider = ({ children }) => {
         setMinSalary,
         maxSalary,
         setMaxSalary,
+        actualMaxSalary,
         setFilters,
       }}
     >

@@ -173,7 +173,12 @@ function JobForm({ jobId }) {
           <Checkbox
             name="negotiable"
             checked={formData.negotiable}
-            onChange={handleChange}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({
+                ...prev,
+                negotiable: checked,
+              }))
+            }
           />
           <span>Salary is negotiable</span>
         </label>
@@ -186,7 +191,7 @@ function JobForm({ jobId }) {
             <label key={type} className="flex items-center gap-2">
               <Checkbox
                 checked={formData.jobType.includes(type)}
-                onChange={() => handleJobTypeChange(type)}
+                onCheckedChange={() => handleJobTypeChange(type)}
               />
               <span>{type}</span>
             </label>

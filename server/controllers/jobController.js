@@ -4,11 +4,16 @@ import Job from "../models/JobModel.js";
 
 export const createJob = asyncHandler(async (req, res) => {
   try {
-    // Get user from JWT token (set by protect middleware)
+    
     const user = req.user;
 
     if (!user) {
       return res.status(401).json({ message: "Not Authorized" });
+    }
+
+    // Check if user is a recruiter
+    if (user.role !== "recruiter") {
+      return res.status(403).json({ message: "Only recruiters can create jobs" });
     }
 
     const {
@@ -159,6 +164,11 @@ export const applyJob = asyncHandler(async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if user is the job creator
+    if (job.createdBy.toString() === user._id.toString()) {
+      return res.status(403).json({ message: "You cannot apply to your own job" });
     }
 
     // Check if user already applied
@@ -458,6 +468,44 @@ export const updateApplicantStatus = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.log("Error in updateApplicantStatus: ", error);
+    return res.status(500).json({
+      message: "Server Error",
+    });
+  }
+});
+
+// Get jobs applied by user
+export const getAppliedJobs = asyncHandler(async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Not Authorized" });
+    }
+
+    // Find all jobs where this user has applied
+    const jobs = await Job.find({
+      "applicants.userId": user._id,
+    })
+      .populate("createdBy", "name profilePicture email")
+      .sort({ createdAt: -1 });
+
+    // Map jobs to include application status
+    const appliedJobs = jobs.map((job) => {
+      const applicant = job.applicants.find(
+        (app) => app.userId?.toString() === user._id.toString()
+      );
+
+      return {
+        ...job.toObject(),
+        applicationStatus: applicant?.status || "applied",
+        appliedAt: applicant?.appliedAt || new Date(),
+      };
+    });
+
+    return res.status(200).json(appliedJobs);
+  } catch (error) {
+    console.log("Error in getAppliedJobs: ", error);
     return res.status(500).json({
       message: "Server Error",
     });

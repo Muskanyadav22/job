@@ -96,11 +96,19 @@ function JobApplicantsPage() {
     <div>
       <Header />
       <div className="p-8 max-w-5xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{job?.title}</h1>
-          <p className="text-gray-600">
-            {applicants.length} applicant{applicants.length !== 1 ? "s" : ""}
-          </p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">{job?.title}</h1>
+            <p className="text-gray-600">
+              {applicants.length} applicant{applicants.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/job/${id}`)}
+          >
+            Back to Job
+          </Button>
         </div>
 
         {applicants.length === 0 ? (
@@ -164,6 +172,15 @@ function JobApplicantsPage() {
                       disabled={applicant.status === "selected"}
                     >
                       Select
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 border-red-600 hover:bg-red-50"
+                      onClick={() => handleUpdateStatus(applicant._id, "rejected")}
+                      disabled={applicant.status === "rejected"}
+                    >
+                      Reject
                     </Button>
                   </div>
                 </div>

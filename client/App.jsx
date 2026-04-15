@@ -14,6 +14,7 @@ import JobDetailsPage from "@/app/job/JobDetailsPage";
 import JobApplicantsPage from "@/app/job/applicants/JobApplicantsPage";
 import EditJobPage from "@/app/job/edit/EditJobPage";
 import ProfilePage from "@/app/profile/ProfilePage";
+import AppliedJobsPage from "@/app/appliedJobs/AppliedJobsPage";
 
 // Loading component
 function LoadingPage() {
@@ -36,6 +37,7 @@ function App() {
             {/* Protected Routes */}
             <Route path="/post" element={<PostJobPage />} />
             <Route path="/myjobs" element={<MyJobsPage />} />
+            <Route path="/applied-jobs" element={<AppliedJobsPage />} />
             <Route path="/job/:id" element={<JobDetailsPage />} />
             <Route path="/job/applicants/:id" element={<JobApplicantsPage />} />
             <Route path="/job/edit/:id" element={<EditJobPage />} />

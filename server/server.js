@@ -17,9 +17,14 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json()); //middleware 
+// middleware are functions that have the acces of request and response, they can also modify the request and response cycle
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// app.use((req,res,next)=>{
+//   next()
+// })
 
 // routes
 const routeFiles = fs.readdirSync("./routes");

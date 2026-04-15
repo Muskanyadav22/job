@@ -11,6 +11,7 @@ import {
   updateJob,
   getApplicants,
   updateApplicantStatus,
+  getAppliedJobs,
 } from "../controllers/jobController.js";
 import { protect } from "../middleware/protect.js";
 
@@ -19,6 +20,7 @@ const router = express.Router();
 // Specific routes should come first
 router.post("/jobs", protect, createJob);
 router.get("/jobs/search", searchJobs);
+router.get("/jobs/applied", protect, getAppliedJobs);
 router.get("/jobs/user/:id", protect, getJobsByUser);
 
 // Nested ID routes

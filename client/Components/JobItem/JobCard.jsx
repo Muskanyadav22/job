@@ -87,7 +87,7 @@ function JobCard({ job, activeJob }) {
 
       <div className="mt-3 flex justify-between items-center text-sm">
         <span className={`font-semibold ${activeJob ? "text-white" : "text-[#7263f3]"}`}>
-          {formatMoney(salary, "GBP")}
+          {formatMoney(salary)}
           <span className="text-xs">/pa</span>
         </span>
         <span className={activeJob ? "text-white/70" : "text-gray-500"}>

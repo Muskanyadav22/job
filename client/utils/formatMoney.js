@@ -1,14 +1,10 @@
-import currency from "currency.js";
+const formatMoney = (amount, currencyCode = "INR") => {
+  const formatter = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currencyCode,
+  });
 
-const formatMoney = (amount, currencyCode) => {
-  const symbol = currencyCode === "GBP" ? "£" : "$";
-
-  return currency(amount, {
-    symbol,
-    precision: 2,
-    separator: ",",
-    decimal: ".",
-  }).format();
+  return formatter.format(amount);
 };
 
 export default formatMoney;

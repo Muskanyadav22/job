@@ -5,7 +5,7 @@ import { LogIn, UserPlus } from "lucide-react";
 import Profile from "./Profile";
 
 function Header() {
-  const { isAuthenticated } = useGlobalContext();
+  const { isAuthenticated, userProfile } = useGlobalContext();
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
 
@@ -28,6 +28,22 @@ function Header() {
           >
             Find Work
           </button>
+        </li>
+        {isAuthenticated && userProfile?.role === "jobseeker" && (
+          <li>
+            <button
+              onClick={() => navigate("/applied-jobs")}
+              className={`py-2 px-6 rounded-md ${
+                currentPath === "/applied-jobs"
+                  ? "text-[#7263F3] border-[#7263F3] border bg-[#7263F3]/10"
+                  : ""
+              }`}
+            >
+              My Applications
+            </button>
+          </li>
+        )}
+        <li>
           <button
             onClick={() => navigate("/myjobs")}
             className={`py-2 px-6 rounded-md ${
@@ -38,17 +54,21 @@ function Header() {
           >
             My Jobs
           </button>
-          <button
-            onClick={() => navigate("/post")}
-            className={`py-2 px-6 rounded-md ${
-              currentPath === "/post"
-                ? "text-[#7263F3] border-[#7263F3] border bg-[#7263F3]/10"
-                : ""
-            }`}
-          >
-            Post a Job
-          </button>
         </li>
+        {isAuthenticated && userProfile?.role === "recruiter" && (
+          <li>
+            <button
+              onClick={() => navigate("/post")}
+              className={`py-2 px-6 rounded-md ${
+                currentPath === "/post"
+                  ? "text-[#7263F3] border-[#7263F3] border bg-[#7263F3]/10"
+                  : ""
+              }`}
+            >
+              Post a Job
+            </button>
+          </li>
+        )}
       </ul>
 
       <div className="flex items-center gap-4">
