@@ -166,9 +166,21 @@ export const applyJob = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Check if user is a recruiter or admin
+    if (user.role !== "jobseeker") {
+      return res.status(403).json({ message: "Only job seekers can apply to jobs" });
+    }
+
     // Check if user is the job creator
     if (job.createdBy.toString() === user._id.toString()) {
       return res.status(403).json({ message: "You cannot apply to your own job" });
+    }
+
+    // Check if user has uploaded a resume
+    if (!user.resume) {
+      return res.status(400).json({
+        message: "Please upload your resume in your profile before applying",
+      });
     }
 
     // Check if user already applied
@@ -355,7 +367,7 @@ export const getApplicants = asyncHandler(async (req, res) => {
 
       try {
         const applicantUser = await User.findById(userId).select(
-          "name email profession profilePicture"
+          "name email profession profilePicture resume"
         );
         
         // Always add applicant, even if user data is missing
@@ -365,6 +377,7 @@ export const getApplicants = asyncHandler(async (req, res) => {
           email: applicantUser?.email || "N/A",
           profession: applicantUser?.profession || "",
           profilePicture: applicantUser?.profilePicture || "/user.png",
+          resume: applicantUser?.resume || null,
           status: status,
           appliedAt: appliedAt,
           createdAt: appliedAt,

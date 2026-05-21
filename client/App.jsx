@@ -15,6 +15,7 @@ import JobApplicantsPage from "@/app/job/applicants/JobApplicantsPage";
 import EditJobPage from "@/app/job/edit/EditJobPage";
 import ProfilePage from "@/app/profile/ProfilePage";
 import AppliedJobsPage from "@/app/appliedJobs/AppliedJobsPage";
+import AdminDashboard from "@/app/admin/AdminDashboard";
 
 // Loading component
 function LoadingPage() {
@@ -42,6 +43,9 @@ function App() {
             <Route path="/job/applicants/:id" element={<JobApplicantsPage />} />
             <Route path="/job/edit/:id" element={<EditJobPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -16,10 +16,10 @@ function Filters() {
   } = useJobsContext();
 
   return (
-    <aside className="w-[22%] flex flex-col gap-8 bg-white p-6 rounded-lg">
+    <aside className="w-full lg:w-[22%] flex flex-col gap-6 md:gap-8 bg-white p-4 md:p-6 rounded-lg">
       <div>
-        <h3 className="font-bold text-lg mb-4">Job Type</h3>
-        <div className="space-y-2">
+        <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4">Job Type</h3>
+        <div className="space-y-2 text-sm md:text-base">
           {["fullTime", "partTime", "contract", "internship"].map((type) => (
             <div key={type} className="flex items-center">
               <Checkbox
@@ -42,8 +42,8 @@ function Filters() {
       </div>
 
       <div>
-        <h3 className="font-bold text-lg mb-4">Skills</h3>
-        <div className="space-y-2">
+        <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4">Skills</h3>
+        <div className="space-y-2 text-sm md:text-base">
           {["fullStack", "backend", "devOps", "uiux"].map((skill) => (
             <div key={skill} className="flex items-center">
               <Checkbox
@@ -66,16 +66,16 @@ function Filters() {
       </div>
 
       <div>
-        <h3 className="font-bold text-lg mb-4">Salary Range</h3>
-        <p className="text-sm mb-2">
-          ₹{minSalary.toLocaleString()} - ₹{maxSalary.toLocaleString()}
+        <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4">Salary Range</h3>
+        <p className="text-xs md:text-sm mb-2">
+          ₹{minSalary.toLocaleString()} - ₹{maxSalary === Infinity ? "No limit" : maxSalary.toLocaleString()}
         </p>
-        <div className="mb-4">
+        <div className="mb-3 md:mb-4">
           <label className="text-xs text-gray-600">Min Salary</label>
           <Slider
             value={[minSalary]}
-            onValueChange={(val) => setMinSalary(Math.min(val[0], actualMaxSalary))}
-            max={actualMaxSalary}
+            onValueChange={(val) => setMinSalary(Math.min(val[0], actualMaxSalary === Infinity ? 1000000 : actualMaxSalary))}
+            max={actualMaxSalary === Infinity ? 1000000 : actualMaxSalary}
             min={0}
             step={1000}
             className="mt-2"
@@ -84,9 +84,9 @@ function Filters() {
         <div>
           <label className="text-xs text-gray-600">Max Salary</label>
           <Slider
-            value={[maxSalary]}
+            value={[maxSalary === Infinity ? (actualMaxSalary === Infinity ? 1000000 : actualMaxSalary) : maxSalary]}
             onValueChange={(val) => setMaxSalary(Math.max(val[0], minSalary))}
-            max={actualMaxSalary * 1.2}
+            max={actualMaxSalary === Infinity ? 1000000 : actualMaxSalary * 1.2}
             min={minSalary}
             step={1000}
             className="mt-2"

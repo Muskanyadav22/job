@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/Components/Footer";
 import Header from "@/Components/Header";
@@ -23,6 +23,14 @@ import {
 
 function Home() {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/findwork?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
   const features = [
     {
       icon: <Briefcase className="w-6 h-6 text-[#7263f3]" />,
@@ -69,36 +77,38 @@ function Home() {
     <main>
       <Header />
 
-      <section className="py-20 bg-gradient-to-b from-[#d7dedc] to-[#7263f3]/5 text-primary-foreground">
+      <section className="py-12 md:py-20 bg-gradient-to-b from-[#d7dedc] to-[#7263f3]/5 text-primary-foreground">
         <div className="container mx-auto px-4 text-center text-black">
-          <h1 className="text-4xl text-[#7263f3] md:text-5xl font-bold mb-6">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl text-[#7263f3] font-bold mb-4 md:mb-6">
             Find Your Dream Job or Perfect Candidate
           </h1>
-          <p className="text-xl mb-8">
+          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 px-2">
             Connect with thousands of employers and job seekers on our platform
           </p>
-          <div className="max-w-2xl mx-auto flex gap-4">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 md:gap-3 px-2">
             <Input
               type="text"
               placeholder="Job title or keyword"
-              className="flex-grow bg-white text-black"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-grow bg-white text-black text-sm md:text-base"
             />
-            <Button className="bg-[#7263f3] text-white">
-              <SearchIcon className="w-6 h-6" />
-              Search Jobs
+            <Button type="submit" className="bg-[#7263f3] text-white text-sm md:text-base w-full sm:w-auto">
+              <SearchIcon className="w-4 h-4" />
+              <span className="ml-2">Search Jobs</span>
             </Button>
-          </div>
+          </form>
         </div>
       </section>
 
-      <section className="py-20 bg-[#f0f5fa]">
+      <section className="py-12 md:py-20 bg-[#f0f5fa]">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">
             Why Choose{" "}
             <span className="text-[#7263f3] font-extrabold">JobFindr</span>
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="flex flex-col">
                 <CardHeader>

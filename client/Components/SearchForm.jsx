@@ -12,22 +12,22 @@ function SearchForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-2 md:gap-3">
       <Input
         type="text"
         placeholder="Job title"
         value={searchQuery.title}
         onChange={(e) => handleSearchChange("title", e.target.value)}
-        className="flex-grow"
+        className="flex-grow text-sm md:text-base"
       />
       <Input
         type="text"
         placeholder="Location"
         value={searchQuery.location}
         onChange={(e) => handleSearchChange("location", e.target.value)}
-        className="flex-grow"
+        className="flex-grow text-sm md:text-base"
       />
-      <Button type="submit" className="bg-[#7263f3]">
+      <Button type="submit" className="bg-[#7263f3] text-sm md:text-base">
         Search
       </Button>
     </form>

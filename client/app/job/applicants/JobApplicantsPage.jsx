@@ -133,6 +133,31 @@ function JobApplicantsPage() {
                       {applicant.profession && (
                         <p className="text-sm text-gray-500">{applicant.profession}</p>
                       )}
+                      {applicant.resume ? (
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          {/* Open in Google Docs Viewer — works for all PDFs */}
+                          <a
+                            href={`https://docs.google.com/viewer?url=${encodeURIComponent(applicant.resume)}&embedded=true`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-[#7263f3]/10 text-[#7263f3] text-xs font-semibold rounded-full hover:bg-[#7263f3]/20 transition-colors"
+                          >
+                            📄 View Resume
+                          </a>
+                          {/* Direct download fallback */}
+                          <a
+                            href={applicant.resume}
+                            download
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            ⬇ Download
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="inline-block mt-2 px-3 py-1 bg-gray-100 text-gray-400 text-xs rounded-full">
+                          No resume uploaded
+                        </span>
+                      )}
                       <p className="text-xs text-gray-400 mt-2">
                         Applied on {new Date(applicant.createdAt).toLocaleDateString()}
                       </p>

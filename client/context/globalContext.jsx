@@ -49,10 +49,52 @@ export const GlobalContextProvider = ({ children }) => {
   const getUserProfile = async (id) => {
     try {
       const res = await axios.get(`/api/v1/user/${id}`);
-
-      setUserProfile(res.data);
+      setUserProfile((prev) => ({ ...prev, ...res.data }));
     } catch (error) {
       console.log("Error getting user profile", error);
+    }
+  };
+
+  const uploadResume = async (file) => {
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const res = await axios.post("/api/v1/user/upload-resume", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Update profile in state and localStorage
+      const updatedUser = { ...userProfile, resume: res.data.resumeUrl };
+      setUserProfile(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return res.data.resumeUrl;
+    } catch (error) {
+      console.log("Error uploading resume", error);
+      throw error;
+    }
+  };
+
+  const updateUserProfile = async (data) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put("/api/v1/user/profile", data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const updatedUser = { ...userProfile, ...res.data.user };
+      setUserProfile(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return res.data.user;
+    } catch (error) {
+      console.log("Error updating profile", error);
+      throw error;
     }
   };
 
@@ -97,6 +139,8 @@ export const GlobalContextProvider = ({ children }) => {
         isAuthenticated,
         userProfile,
         getUserProfile,
+        uploadResume,
+        updateUserProfile,
         loading,
         token,
         setToken,

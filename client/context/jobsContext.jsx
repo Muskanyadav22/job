@@ -35,8 +35,8 @@ export const JobsContextProvider = ({ children }) => {
   });
 
   const [minSalary, setMinSalary] = useState(0);
-  const [maxSalary, setMaxSalary] = useState(0); // Will be set dynamically from actual jobs
-  const [actualMaxSalary, setActualMaxSalary] = useState(0); // Store actual max salary from all jobs
+  const [maxSalary, setMaxSalary] = useState(Infinity); // Will be set dynamically from actual jobs
+  const [actualMaxSalary, setActualMaxSalary] = useState(Infinity); // Store actual max salary from all jobs
 
   const getJobs = async () => {
     setLoading(true);
@@ -47,8 +47,12 @@ export const JobsContextProvider = ({ children }) => {
       
       // Set max salary dynamically based on actual job data
       if (res.data.length > 0) {
-        const maxJobSalary = Math.max(...res.data.map(job => job.salary || 0));
-        const bufferMax = maxJobSalary + 10000; // Add buffer
+        const salaries = res.data
+          .map(job => Number(job.salary) || 0)
+          .filter(salary => salary > 0);
+        
+        const maxJobSalary = salaries.length > 0 ? Math.max(...salaries) : 500000;
+        const bufferMax = maxJobSalary + 50000; // Add buffer
         setActualMaxSalary(bufferMax); // Store actual max
         setMaxSalary(bufferMax); // Initialize filtered max
       } else {
@@ -113,10 +117,13 @@ export const JobsContextProvider = ({ children }) => {
   const applyFilters = () => {
     let filteredJobs = allJobs.length > 0 ? [...allJobs] : [];
 
-    // Filter by salary range
-    filteredJobs = filteredJobs.filter(
-      (job) => job.salary >= minSalary && job.salary <= maxSalary
-    );
+    // Filter by salary range - ensure numeric comparison
+    if (minSalary > 0 || maxSalary < Infinity) {
+      filteredJobs = filteredJobs.filter((job) => {
+        const jobSalary = Number(job.salary) || 0;
+        return jobSalary >= minSalary && jobSalary <= maxSalary;
+      });
+    }
 
     // Filter by job type
     const activeJobTypes = [];
