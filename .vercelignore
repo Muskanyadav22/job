@@ -1,5 +1,0 @@
-server/
-.git
-*.md
-.env
-.env.local
